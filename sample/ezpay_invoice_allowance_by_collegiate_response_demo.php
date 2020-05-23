@@ -14,7 +14,7 @@ try {
     $basedir = $_SERVER['DOCUMENT_ROOT'];
     $sMsg = '';
     include_once($basedir . '/sdk/Ezpay_Invoice.php');
-    $ecpayInvoice = new EcpayInvoice;
+    $ecpayInvoice = new EzpayInvoice;
 
     $merchantInfo = [
         'hashKey' => 'ejCk326UnaZWKisg',

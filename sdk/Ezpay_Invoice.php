@@ -5,7 +5,7 @@
 */
 
 // 執行發票作業項目。
-abstract class EcpayInvoiceMethod
+abstract class EzpayInvoiceMethod
 {
     // 一般開立發票。
     const INVOICE = 'INVOICE';
@@ -51,7 +51,7 @@ abstract class EcpayInvoiceMethod
 }
 
 // 電子發票載具類別
-abstract class EcpayCarruerType
+abstract class EzpayCarruerType
 {
     // 無載具
     const None = '';
@@ -67,7 +67,7 @@ abstract class EcpayCarruerType
 }
 
 // 電子發票列印註記
-abstract class EcpayPrintMark
+abstract class EzpayPrintMark
 {
     // 不列印
     const No = '0';
@@ -77,7 +77,7 @@ abstract class EcpayPrintMark
 }
 
 // 電子發票捐贈註記
-abstract class EcpayDonation
+abstract class EzpayDonation
 {
     // 捐贈
     const Yes = '1';
@@ -87,7 +87,7 @@ abstract class EcpayDonation
 }
 
 // 通關方式
-abstract class EcpayClearanceMark
+abstract class EzpayClearanceMark
 {
     // 經海關出口
     const Yes = '1';
@@ -97,7 +97,7 @@ abstract class EcpayClearanceMark
 }
 
 // 課稅類別
-abstract class EcpayTaxType
+abstract class EzpayTaxType
 {
     // 應稅
     const Dutiable = '1';
@@ -113,14 +113,14 @@ abstract class EcpayTaxType
 }
 
 // 字軌類別
-abstract class EcpayInvType
+abstract class EzpayInvType
 {
     // 一般稅額
     const General = '07';
 }
 
 // 商品單價是否含稅
-abstract class EcpayVatType
+abstract class EzpayVatType
 {
     // 商品單價含稅價
     const Yes = '1';
@@ -130,7 +130,7 @@ abstract class EcpayVatType
 }
 
 // 延遲註記
-abstract class EcpayDelayFlagType
+abstract class EzpayDelayFlagType
 {
     // 延遲註記
     const Delay = '1';
@@ -140,14 +140,14 @@ abstract class EcpayDelayFlagType
 }
 
 // 交易類別
-abstract class EcpayPayTypeCategory
+abstract class EzpayPayTypeCategory
 {
     // ECPAY
-    const Ecpay = '2';
+    const Ezpay = '2';
 }
 
 // 通知類別
-abstract class EcpayAllowanceNotifyType
+abstract class EzpayAllowanceNotifyType
 {
     // 簡訊通知
     const Sms = 'S';
@@ -163,7 +163,7 @@ abstract class EcpayAllowanceNotifyType
 }
 
 // 發送方式
-abstract class EcpayNotifyType
+abstract class EzpayNotifyType
 {
     // 簡訊通知
     const Sms = 'S';
@@ -176,7 +176,7 @@ abstract class EcpayNotifyType
 }
 
 // 發送內容類型
-abstract class EcpayInvoiceTagType
+abstract class EzpayInvoiceTagType
 {
     // 發票開立
     const Invoice = 'I';
@@ -195,7 +195,7 @@ abstract class EcpayInvoiceTagType
 }
 
 // 發送對象
-abstract class EcpayNotifiedType
+abstract class EzpayNotifiedType
 {
     // 通知客戶
     const Customer = 'C';
@@ -218,7 +218,7 @@ if (!class_exists('ECPay_EncryptType')) {
     }
 }
 
-class EcpayInvoice
+class EzpayInvoice
 {
     /**
      * 版本
@@ -244,17 +244,17 @@ class EcpayInvoice
             'CustomerPhone' => '',
             'CustomerEmail' => '',
             'ClearanceMark' => '',
-            'Print' => EcpayPrintMark::No,
-            'Donation' => EcpayDonation::No,
+            'Print' => EzpayPrintMark::No,
+            'Donation' => EzpayDonation::No,
             'LoveCode' => '',
-            'CarruerType' => EcpayCarruerType::None,
+            'CarruerType' => EzpayCarruerType::None,
             'CarruerNum' => '',
             'TaxType' => '',
             'SalesAmount' => '',
             'InvoiceRemark' => '',
             'Items' => array(),
             'InvType' => '',
-            'vat' => EcpayVatType::Yes,
+            'vat' => EzpayVatType::Yes,
             'DelayFlag' => '',
             'DelayDay' => 0,
             'Tsr' => '',
@@ -695,7 +695,7 @@ class ECPay_INVOICE
         // 7.客戶名稱 CustomerName
         // x僅能為中英數字格式
         // *若列印註記 = '1' (列印)時，則客戶名稱須有值
-        if ($arParameters['Print'] == EcpayPrintMark::Yes) {
+        if ($arParameters['Print'] == EzpayPrintMark::Yes) {
             if (mb_strlen($arParameters['CustomerName'], 'UTF-8') == 0 && $arParameters['OnLine']) {
                 array_push($arErrors, "7:CustomerName is required.");
             }
@@ -709,7 +709,7 @@ class ECPay_INVOICE
         // 8.客戶地址 CustomerAddr(UrlEncode, 預設為空字串)
 
         // *若列印註記 = '1' (列印)時，則客戶地址須有值
-        if ($arParameters['Print'] == EcpayPrintMark::Yes) {
+        if ($arParameters['Print'] == EzpayPrintMark::Yes) {
             if (mb_strlen($arParameters['CustomerAddr'], 'UTF-8') == 0 && $arParameters['OnLine']) {
                 array_push($arErrors, "8:CustomerAddr is required.");
             }
@@ -760,28 +760,28 @@ class ECPay_INVOICE
         }
 
         // *課稅類別為零稅率(Zero)或課稅類別為混合稅率(Mix)且商品課稅別存在零稅率時，此參數不可為空字串
-        if ($arParameters['TaxType'] == EcpayTaxType::Zero || ($arParameters['TaxType'] == EcpayTaxType::Mix && strpos($arParameters['ItemTaxType'], EcpayTaxType::Zero) !== false)) {
-            if (($arParameters['ClearanceMark'] != EcpayClearanceMark::Yes) && ($arParameters['ClearanceMark'] != EcpayClearanceMark::No)) {
+        if ($arParameters['TaxType'] == EzpayTaxType::Zero || ($arParameters['TaxType'] == EzpayTaxType::Mix && strpos($arParameters['ItemTaxType'], EzpayTaxType::Zero) !== false)) {
+            if (($arParameters['ClearanceMark'] != EzpayClearanceMark::Yes) && ($arParameters['ClearanceMark'] != EzpayClearanceMark::No)) {
                 array_push($arErrors, "11:ClearanceMark is required.");
             }
         }
 
         // 12.列印註記 Print(預設為No)
         // *列印註記僅能為 0 或 1
-        if (($arParameters['Print'] != EcpayPrintMark::Yes) && ($arParameters['Print'] != EcpayPrintMark::No)) {
+        if (($arParameters['Print'] != EzpayPrintMark::Yes) && ($arParameters['Print'] != EzpayPrintMark::No)) {
             array_push($arErrors, "12:Invalid Print.");
         }
 
         // *若捐贈註記 = '1' (捐贈)時，則VAL = '0' (不列印)
-        if ($arParameters['Donation'] == EcpayDonation::Yes) {
-            if ($arParameters['Print'] != EcpayPrintMark::No) {
+        if ($arParameters['Donation'] == EzpayDonation::Yes) {
+            if ($arParameters['Print'] != EzpayPrintMark::No) {
                 array_push($arErrors, "12:Donation Print should be No.");
             }
         }
 
         // *若統一編號有值時，則VAL = '1' (列印)
         if (strlen($arParameters['CustomerIdentifier']) > 0) {
-            if ($arParameters['Print'] != EcpayPrintMark::Yes) {
+            if ($arParameters['Print'] != EzpayPrintMark::Yes) {
                 array_push($arErrors, "12:CustomerIdentifier Print should be Yes.");
             }
         }
@@ -789,8 +789,8 @@ class ECPay_INVOICE
         // 線下列印判斷
         // 1200079當線下廠商開立發票無載具且無統一編號時，必須列印。
         if ($arParameters['OnLine'] === false) {
-            if (($arParameters['CarruerType'] == EcpayCarruerType::None) && strlen($arParameters['CustomerIdentifier']) == 0) {
-                if ($arParameters['Print'] != EcpayPrintMark::Yes) {
+            if (($arParameters['CarruerType'] == EzpayCarruerType::None) && strlen($arParameters['CustomerIdentifier']) == 0) {
+                if ($arParameters['Print'] != EzpayPrintMark::Yes) {
                     array_push($arErrors, "12:Offline Print should be Yes.");
                 }
             }
@@ -799,12 +799,12 @@ class ECPay_INVOICE
         // 13.捐贈註記 Donation
 
         // *固定給定下述預設值若為捐贈時，則VAL = '1'，若為不捐贈時，則VAL = '0'
-        if (($arParameters['Donation'] != EcpayDonation::Yes) && ($arParameters['Donation'] != EcpayDonation::No)) {
+        if (($arParameters['Donation'] != EzpayDonation::Yes) && ($arParameters['Donation'] != EzpayDonation::No)) {
             array_push($arErrors, "13:Invalid Donation.");
         }
 
         // *若統一編號有值時，則VAL = '2' (不捐贈)
-        if (strlen($arParameters['CustomerIdentifier']) > 0 && $arParameters['Donation'] == EcpayDonation::Yes) {
+        if (strlen($arParameters['CustomerIdentifier']) > 0 && $arParameters['Donation'] == EzpayDonation::Yes) {
             array_push($arErrors, "13:CustomerIdentifier Donation should be No.");
         }
 
@@ -812,7 +812,7 @@ class ECPay_INVOICE
         // 14.愛心碼 LoveCode(預設為空字串)
 
         // *若捐贈註記 = '1' (捐贈)時，則須有值
-        if ($arParameters['Donation'] == EcpayDonation::Yes) {
+        if ($arParameters['Donation'] == EzpayDonation::Yes) {
             if (!preg_match('/^([xX]{1}[0-9]{2,6}|[0-9]{3,7})$/', $arParameters['LoveCode'])) {
                 array_push($arErrors, "14:Invalid LoveCode.");
             }
@@ -825,12 +825,12 @@ class ECPay_INVOICE
         // 15.載具類別 CarruerType(預設為None)
 
         // *固定給定下述預設值None、Member、Cellphone
-        if (($arParameters['CarruerType'] != EcpayCarruerType::None) && ($arParameters['CarruerType'] != EcpayCarruerType::Member) && ($arParameters['CarruerType'] != EcpayCarruerType::Citizen) && ($arParameters['CarruerType'] != EcpayCarruerType::Cellphone)) {
+        if (($arParameters['CarruerType'] != EzpayCarruerType::None) && ($arParameters['CarruerType'] != EzpayCarruerType::Member) && ($arParameters['CarruerType'] != EzpayCarruerType::Citizen) && ($arParameters['CarruerType'] != EzpayCarruerType::Cellphone)) {
             array_push($arErrors, "15:Invalid CarruerType.");
         } else {
             // *統一編號不為空字串時，則載具類別不可為會載具或自然人憑證載具
             if (strlen($arParameters['CustomerIdentifier']) > 0) {
-                if ($arParameters['CarruerType'] == EcpayCarruerType::Member || $arParameters['CarruerType'] == EcpayCarruerType::Citizen) {
+                if ($arParameters['CarruerType'] == EzpayCarruerType::Member || $arParameters['CarruerType'] == EzpayCarruerType::Citizen) {
                     array_push($arErrors, "15:Invalid CarruerType.");
                 }
             }
@@ -840,8 +840,8 @@ class ECPay_INVOICE
         switch ($arParameters['CarruerType']) {
 
             // *載具類別為無載具(None)或會員載具(Member)時，請設定空字串
-            case EcpayCarruerType::None:
-            case EcpayCarruerType::Member:
+            case EzpayCarruerType::None:
+            case EzpayCarruerType::Member:
                 if (strlen($arParameters['CarruerNum']) > 0) {
                     array_push($arErrors, "16:Please remove CarruerNum.");
                 }
@@ -849,14 +849,14 @@ class ECPay_INVOICE
 
             // *載具類別為買受人自然人憑證(Citizen)時，請設定自然人憑證號碼，前2碼為大小寫英文，後14碼為數字
             // NOTE:API程式會自動將小寫轉成大寫
-            case EcpayCarruerType::Citizen:
+            case EzpayCarruerType::Citizen:
                 if (!preg_match('/^[a-zA-Z]{2}\d{14}$/', $arParameters['CarruerNum'])) {
                     array_push($arErrors, "16:Invalid CarruerNum.");
                 }
                 break;
 
             // *載具類別為買受人手機條碼(Cellphone)時，請設定手機條碼，第1碼為「/」，後7碼為大寫英文、數字、「+」、「-」或「.」
-            case EcpayCarruerType::Cellphone:
+            case EzpayCarruerType::Cellphone:
                 if (!preg_match('/^\/{1}[0-9A-Z+-.]{7}$/', $arParameters['CarruerNum'])) {
                     array_push($arErrors, "16:Invalid CarruerNum.");
                 }
@@ -874,7 +874,7 @@ class ECPay_INVOICE
         }
 
         // *僅能為 1應稅 2零稅率 3免稅 9.應稅與免稅混合
-        if (($arParameters['TaxType'] != EcpayTaxType::Dutiable) && ($arParameters['TaxType'] != EcpayTaxType::Zero) && ($arParameters['TaxType'] != EcpayTaxType::Free) && ($arParameters['TaxType'] != EcpayTaxType::Mix)) {
+        if (($arParameters['TaxType'] != EzpayTaxType::Dutiable) && ($arParameters['TaxType'] != EzpayTaxType::Zero) && ($arParameters['TaxType'] != EzpayTaxType::Free) && ($arParameters['TaxType'] != EzpayTaxType::Mix)) {
             array_push($arErrors, "17:Invalid TaxType.");
         }
 
@@ -995,7 +995,7 @@ class ECPay_INVOICE
 
                 // *檢查商品課稅別
                 // 課稅類別為混合稅率時
-                if ($arParameters['TaxType'] == EcpayTaxType::Mix) {
+                if ($arParameters['TaxType'] == EzpayTaxType::Mix) {
 
                     $ItemTaxType = explode("|", $arParameters['ItemTaxType']);
                     // 商品課稅別不可為空
@@ -1022,7 +1022,7 @@ class ECPay_INVOICE
         // 27.字軌類別
 
         // *InvType(不可為空) 僅能為 07 狀態
-        if (($arParameters['InvType'] != EcpayInvType::General)) {
+        if (($arParameters['InvType'] != EzpayInvType::General)) {
             array_push($arErrors, "27:Invalid InvType.");
         }
 
@@ -1030,7 +1030,7 @@ class ECPay_INVOICE
 
         // *固定給定下述預設值 若為含稅價，則VAL = '1'
         if (!empty($arParameters['vat'])) {
-            if (($arParameters['vat'] != EcpayVatType::Yes) && ($arParameters['vat'] != EcpayVatType::No)) {
+            if (($arParameters['vat'] != EzpayVatType::Yes) && ($arParameters['vat'] != EzpayVatType::No)) {
                 array_push($arErrors, "29:Invalid VatType.");
             }
         }
@@ -1227,7 +1227,7 @@ class ECPay_INVOICE_DELAY
         // 7.客戶名稱 CustomerName
         // x僅能為中英數字格式
         // *若列印註記 = '1' (列印)時，則客戶名稱須有值
-        if ($arParameters['Print'] == EcpayPrintMark::Yes) {
+        if ($arParameters['Print'] == EzpayPrintMark::Yes) {
             if (mb_strlen($arParameters['CustomerName'], 'UTF-8') == 0) {
                 array_push($arErrors, "7:CustomerName is required.");
             }
@@ -1241,7 +1241,7 @@ class ECPay_INVOICE_DELAY
         // 8.客戶地址 CustomerAddr(UrlEncode, 預設為空字串)
 
         // *若列印註記 = '1' (列印)時，則客戶地址須有值
-        if ($arParameters['Print'] == EcpayPrintMark::Yes) {
+        if ($arParameters['Print'] == EzpayPrintMark::Yes) {
             if (mb_strlen($arParameters['CustomerAddr'], 'UTF-8') == 0) {
                 array_push($arErrors, "8:CustomerAddr is required.");
             }
@@ -1292,8 +1292,8 @@ class ECPay_INVOICE_DELAY
         }
 
         // *課稅類別為零稅率(Zero)或課稅類別為混合稅率(Mix)且商品課稅別存在零稅率時，此參數不可為空字串
-        if ($arParameters['TaxType'] == EcpayTaxType::Zero || ($arParameters['TaxType'] == EcpayTaxType::Mix && strpos($arParameters['ItemTaxType'], EcpayTaxType::Zero) !== false)) {
-            if (($arParameters['ClearanceMark'] != EcpayClearanceMark::Yes) && ($arParameters['ClearanceMark'] != EcpayClearanceMark::No)) {
+        if ($arParameters['TaxType'] == EzpayTaxType::Zero || ($arParameters['TaxType'] == EzpayTaxType::Mix && strpos($arParameters['ItemTaxType'], EzpayTaxType::Zero) !== false)) {
+            if (($arParameters['ClearanceMark'] != EzpayClearanceMark::Yes) && ($arParameters['ClearanceMark'] != EzpayClearanceMark::No)) {
                 array_push($arErrors, "11:ClearanceMark is required.");
             }
         }
@@ -1301,21 +1301,21 @@ class ECPay_INVOICE_DELAY
         // 12.列印註記 Print(預設為No)
 
         // *列印註記僅能為 0 或 1
-        if (($arParameters['Print'] != EcpayPrintMark::Yes) && ($arParameters['Print'] != EcpayPrintMark::No)) {
+        if (($arParameters['Print'] != EzpayPrintMark::Yes) && ($arParameters['Print'] != EzpayPrintMark::No)) {
             array_push($arErrors, "12:Invalid Print.");
         }
 
         // *若捐贈註記 = '1' (捐贈)時，則VAL = '0' (不列印)
-        if ($arParameters['Donation'] == EcpayDonation::Yes) {
+        if ($arParameters['Donation'] == EzpayDonation::Yes) {
 
-            if ($arParameters['Print'] != EcpayPrintMark::No) {
+            if ($arParameters['Print'] != EzpayPrintMark::No) {
                 array_push($arErrors, "12:Donation Print should be No.");
             }
         }
 
         // *若統一編號有值時，則VAL = '1' (列印)
         if (strlen($arParameters['CustomerIdentifier']) > 0) {
-            if ($arParameters['Print'] != EcpayPrintMark::Yes) {
+            if ($arParameters['Print'] != EzpayPrintMark::Yes) {
                 array_push($arErrors, "12:CustomerIdentifier Print should be Yes.");
             }
         }
@@ -1323,18 +1323,18 @@ class ECPay_INVOICE_DELAY
         // 13.捐贈註記 Donation
 
         // *固定給定下述預設值若為捐贈時，則VAL = '1'，若為不捐贈時，則VAL = '0'
-        if (($arParameters['Donation'] != EcpayDonation::Yes) && ($arParameters['Donation'] != EcpayDonation::No)) {
+        if (($arParameters['Donation'] != EzpayDonation::Yes) && ($arParameters['Donation'] != EzpayDonation::No)) {
             array_push($arErrors, "13:Invalid Donation.");
         }
 
         // *若統一編號有值時，則VAL = '0' (不捐贈)
-        if (strlen($arParameters['CustomerIdentifier']) > 0 && $arParameters['Donation'] == EcpayDonation::Yes) {
+        if (strlen($arParameters['CustomerIdentifier']) > 0 && $arParameters['Donation'] == EzpayDonation::Yes) {
             array_push($arErrors, "13:CustomerIdentifier Donation should be No.");
         }
 
         // 14.愛心碼 LoveCode(預設為空字串)
         // *若捐贈註記 = '1' (捐贈)時，則須有值
-        if ($arParameters['Donation'] == EcpayDonation::Yes) {
+        if ($arParameters['Donation'] == EzpayDonation::Yes) {
             if (!preg_match('/^([xX]{1}[0-9]{2,6}|[0-9]{3,7})$/', $arParameters['LoveCode'])) {
                 array_push($arErrors, "14:Invalid LoveCode.");
             }
@@ -1347,7 +1347,7 @@ class ECPay_INVOICE_DELAY
         // 15.載具類別 CarruerType(預設為None)
 
         // *固定給定下述預設值None、Member、Cellphone
-        if (($arParameters['CarruerType'] != EcpayCarruerType::None) && ($arParameters['CarruerType'] != EcpayCarruerType::Member) && ($arParameters['CarruerType'] != EcpayCarruerType::Citizen) && ($arParameters['CarruerType'] != EcpayCarruerType::Cellphone)) {
+        if (($arParameters['CarruerType'] != EzpayCarruerType::None) && ($arParameters['CarruerType'] != EzpayCarruerType::Member) && ($arParameters['CarruerType'] != EzpayCarruerType::Citizen) && ($arParameters['CarruerType'] != EzpayCarruerType::Cellphone)) {
             array_push($arErrors, "15:Invalid CarruerType.");
 
         } else {
@@ -1355,7 +1355,7 @@ class ECPay_INVOICE_DELAY
             // *統一編號不為空字串時，則載具類別不可為會載具或自然人憑證載具
             if (strlen($arParameters['CustomerIdentifier']) > 0) {
 
-                if ($arParameters['CarruerType'] == EcpayCarruerType::Member || $arParameters['CarruerType'] == EcpayCarruerType::Citizen) {
+                if ($arParameters['CarruerType'] == EzpayCarruerType::Member || $arParameters['CarruerType'] == EzpayCarruerType::Citizen) {
                     array_push($arErrors, "15:Invalid CarruerType.");
                 }
             }
@@ -1364,8 +1364,8 @@ class ECPay_INVOICE_DELAY
         // 16.載具編號 CarruerNum(預設為空字串)
         switch ($arParameters['CarruerType']) {
             // *載具類別為無載具(None)或會員載具(Member)時，請設定空字串
-            case EcpayCarruerType::None:
-            case EcpayCarruerType::Member:
+            case EzpayCarruerType::None:
+            case EzpayCarruerType::Member:
                 if (strlen($arParameters['CarruerNum']) > 0) {
                     array_push($arErrors, "16:Please remove CarruerNum.");
                 }
@@ -1373,14 +1373,14 @@ class ECPay_INVOICE_DELAY
 
             // *載具類別為買受人自然人憑證(Citizen)時，請設定自然人憑證號碼，前2碼為大小寫英文，後14碼為數字
             // NOTE:API程式會自動將小寫轉成大寫
-            case EcpayCarruerType::Citizen:
+            case EzpayCarruerType::Citizen:
                 if (!preg_match('/^[a-zA-Z]{2}\d{14}$/', $arParameters['CarruerNum'])) {
                     array_push($arErrors, "16:Invalid CarruerNum.");
                 }
                 break;
 
             // *載具類別為買受人手機條碼(Cellphone)時，請設定手機條碼，第1碼為「/」，後7碼為大寫英文、數字、「+」、「-」或「.」
-            case EcpayCarruerType::Cellphone:
+            case EzpayCarruerType::Cellphone:
                 if (!preg_match('/^\/{1}[0-9A-Z+-.]{7}$/', $arParameters['CarruerNum'])) {
                     array_push($arErrors, "16:Invalid CarruerNum.");
                 }
@@ -1397,7 +1397,7 @@ class ECPay_INVOICE_DELAY
         }
 
         // *僅能為 1應稅 2零稅率 3免稅 9.應稅與免稅混合
-        if (($arParameters['TaxType'] != EcpayTaxType::Dutiable) && ($arParameters['TaxType'] != EcpayTaxType::Zero) && ($arParameters['TaxType'] != EcpayTaxType::Free) && ($arParameters['TaxType'] != EcpayTaxType::Mix)) {
+        if (($arParameters['TaxType'] != EzpayTaxType::Dutiable) && ($arParameters['TaxType'] != EzpayTaxType::Zero) && ($arParameters['TaxType'] != EzpayTaxType::Free) && ($arParameters['TaxType'] != EzpayTaxType::Mix)) {
             array_push($arErrors, "17:Invalid TaxType.");
         }
 
@@ -1498,7 +1498,7 @@ class ECPay_INVOICE_DELAY
 
                 // *檢查商品課稅別
                 // 課稅類別為混合稅率時
-                if ($arParameters['TaxType'] == EcpayTaxType::Mix) {
+                if ($arParameters['TaxType'] == EzpayTaxType::Mix) {
 
                     $ItemTaxType = explode("|", $arParameters['ItemTaxType']);
 
@@ -1526,12 +1526,12 @@ class ECPay_INVOICE_DELAY
 
         // 27.字軌類別
         // *InvType(不可為空) 僅能為 07 狀態
-        if (($arParameters['InvType'] != EcpayInvType::General)) {
+        if (($arParameters['InvType'] != EzpayInvType::General)) {
             array_push($arErrors, "27:Invalid InvType.");
         }
 
         // 30.延遲註記 DelayFlag
-        if (($arParameters['DelayFlag'] != EcpayDelayFlagType::Delay) && ($arParameters['DelayFlag'] != EcpayDelayFlagType::Trigger)) {
+        if (($arParameters['DelayFlag'] != EzpayDelayFlagType::Delay) && ($arParameters['DelayFlag'] != EzpayDelayFlagType::Trigger)) {
             array_push($arErrors, "30:Invalid DelayFlagType.");
         }
 
@@ -1542,14 +1542,14 @@ class ECPay_INVOICE_DELAY
         $arParameters['DelayDay'] = (int)$arParameters['DelayDay'];
 
         // *若為延遲開立時，延遲天數須介於1至15天內
-        if ($arParameters['DelayFlag'] == EcpayDelayFlagType::Delay) {
+        if ($arParameters['DelayFlag'] == EzpayDelayFlagType::Delay) {
             if ($arParameters['DelayDay'] < 1 || $arParameters['DelayDay'] > 15) {
                 array_push($arErrors, "31:DelayDay should be 1 ~ 15.");
             }
         }
 
         // *若為觸發開立時，延遲天數須介於0至15天內
-        if ($arParameters['DelayFlag'] == EcpayDelayFlagType::Trigger) {
+        if ($arParameters['DelayFlag'] == EzpayDelayFlagType::Trigger) {
             if ($arParameters['DelayDay'] < 0 || $arParameters['DelayDay'] > 15) {
                 array_push($arErrors, "31:DelayDay should be 0 ~ 15.");
             }
@@ -1569,7 +1569,7 @@ class ECPay_INVOICE_DELAY
         // 34.交易類別 PayType
 
         // *2016-10-4 修改為僅允許 2
-        if ($arParameters['PayType'] != EcpayPayTypeCategory::Ecpay) {
+        if ($arParameters['PayType'] != EzpayPayTypeCategory::Ezpay) {
             array_push($arErrors, "34:Invalid PayType.");
 
         } else {
@@ -1821,7 +1821,7 @@ class ECPay_ALLOWANCE
         // 38.通知類別 AllowanceNotify
 
         // *固定給定下述預設值
-        if (($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::Sms) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::Email) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::All) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::None)) {
+        if (($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::Sms) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::Email) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::All) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::None)) {
             array_push($arErrors, "38:Invalid AllowanceNotifyType.");
         }
 
@@ -1835,7 +1835,7 @@ class ECPay_ALLOWANCE
         }
 
         // *下述情況通知電子信箱不可為空值(通知類別為E-電子郵件)
-        if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
+        if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
             array_push($arErrors, "39:NotifyMail is required.");
         }
 
@@ -1853,23 +1853,23 @@ class ECPay_ALLOWANCE
         }
 
         // *下述情況通知手機號碼不可為空值(通知類別為S-簡訊)
-        if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Sms && strlen($arParameters['NotifyPhone']) == 0) {
+        if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Sms && strlen($arParameters['NotifyPhone']) == 0) {
             array_push($arErrors, "40:NotifyPhone is required.");
         }
 
         // 39-40 通知電子信箱、通知手機號碼不能全為空值 (如果狀態為SMS 或 EMAIL)
-        if (strlen($arParameters['NotifyPhone']) == 0 && strlen($arParameters['NotifyMail']) == 0 && ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Sms || $arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Email)) {
+        if (strlen($arParameters['NotifyPhone']) == 0 && strlen($arParameters['NotifyMail']) == 0 && ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Sms || $arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Email)) {
             array_push($arErrors, "39-40:NotifyMail or NotifyPhone is required.");
 
         } else {
 
             // *下述情況通知手機號碼與電子信箱不可為空值(通知類別為A-皆通知)
-            if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['NotifyPhone']) == 0)) {
+            if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['NotifyPhone']) == 0)) {
                 array_push($arErrors, "39-40:NotifyMail And NotifyPhone is required.");
             }
 
             // *下述情況通知手機號碼與電子信箱為空值(通知類別為N-皆不通知)
-            if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::None && (strlen($arParameters['NotifyMail']) > 0 || strlen($arParameters['NotifyPhone']) > 0)) {
+            if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::None && (strlen($arParameters['NotifyMail']) > 0 || strlen($arParameters['NotifyPhone']) > 0)) {
                 array_push($arErrors, "39-40:Please remove NotifyMail And NotifyPhone.");
             }
         }
@@ -2123,7 +2123,7 @@ class ECPay_ALLOWANCE_BY_COLLEGIATE
         // 38.通知類別 AllowanceNotify
 
         // *固定給定下述預設值
-        if (($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::Sms) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::Email) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::All) && ($arParameters['AllowanceNotify'] != EcpayAllowanceNotifyType::None)) {
+        if (($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::Sms) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::Email) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::All) && ($arParameters['AllowanceNotify'] != EzpayAllowanceNotifyType::None)) {
             array_push($arErrors, "38:Invalid AllowanceNotifyType.");
         }
 
@@ -2142,7 +2142,7 @@ class ECPay_ALLOWANCE_BY_COLLEGIATE
         }
 
         // *下述情況通知電子信箱不可為空值(通知類別為E-電子郵件)
-        if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
+        if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
             array_push($arErrors, "39:NotifyMail is required.");
         }
 
@@ -2160,23 +2160,23 @@ class ECPay_ALLOWANCE_BY_COLLEGIATE
         }
 
         // *下述情況通知手機號碼不可為空值(通知類別為S-簡訊)
-        if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Sms && strlen($arParameters['NotifyPhone']) == 0) {
+        if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Sms && strlen($arParameters['NotifyPhone']) == 0) {
             array_push($arErrors, "40:NotifyPhone is required.");
         }
 
         // 39-40 通知電子信箱、通知手機號碼不能全為空值 (如果狀態為SMS 或 EMAIL)
-        if (strlen($arParameters['NotifyPhone']) == 0 && strlen($arParameters['NotifyMail']) == 0 && ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Sms || $arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::Email)) {
+        if (strlen($arParameters['NotifyPhone']) == 0 && strlen($arParameters['NotifyMail']) == 0 && ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Sms || $arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::Email)) {
             array_push($arErrors, "39-40:NotifyMail or NotifyPhone is required.");
 
         } else {
 
             // *下述情況通知手機號碼與電子信箱不可為空值(通知類別為A-皆通知)
-            if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['NotifyPhone']) == 0)) {
+            if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['NotifyPhone']) == 0)) {
                 array_push($arErrors, "39-40:NotifyMail And NotifyPhone is required.");
             }
 
             // *下述情況通知手機號碼與電子信箱為空值(通知類別為N-皆不通知)
-            if ($arParameters['AllowanceNotify'] == EcpayAllowanceNotifyType::None && (strlen($arParameters['NotifyMail']) > 0 || strlen($arParameters['NotifyPhone']) > 0)) {
+            if ($arParameters['AllowanceNotify'] == EzpayAllowanceNotifyType::None && (strlen($arParameters['NotifyMail']) > 0 || strlen($arParameters['NotifyPhone']) > 0)) {
                 array_push($arErrors, "39-40:Please remove NotifyMail And NotifyPhone.");
             }
         }
@@ -2783,7 +2783,7 @@ class ECPay_INVOICE_NOTIFY
         $arErrors = array();
 
         // 37.發票號碼 InvoiceNo
-        if (($arParameters['InvoiceTag'] == EcpayInvoiceTagType::Invoice) || ($arParameters['InvoiceTag'] == EcpayInvoiceTagType::Invoice_Void)) {
+        if (($arParameters['InvoiceTag'] == EzpayInvoiceTagType::Invoice) || ($arParameters['InvoiceTag'] == EzpayInvoiceTagType::Invoice_Void)) {
 
             // *必填項目
             if (strlen($arParameters['InvoiceNo']) == 0) {
@@ -2797,7 +2797,7 @@ class ECPay_INVOICE_NOTIFY
         }
 
         // 44.折讓編號 AllowanceNo
-        if (($arParameters['InvoiceTag'] == EcpayInvoiceTagType::Allowance) || ($arParameters['InvoiceTag'] == EcpayInvoiceTagType::Allowance_Void)) {
+        if (($arParameters['InvoiceTag'] == EzpayInvoiceTagType::Allowance) || ($arParameters['InvoiceTag'] == EzpayInvoiceTagType::Allowance_Void)) {
 
             if (strlen($arParameters['AllowanceNo']) == 0) {
                 array_push($arErrors, "44:AllowanceNo is required.");
@@ -2820,7 +2820,7 @@ class ECPay_INVOICE_NOTIFY
         }
 
         // *下述情況通知電子信箱不可為空值(發送方式為E-電子郵件)
-        if ($arParameters['Notify'] == EcpayNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
+        if ($arParameters['Notify'] == EzpayNotifyType::Email && strlen($arParameters['NotifyMail']) == 0) {
             array_push($arErrors, "39:NotifyMail is required.");
         }
 
@@ -2838,7 +2838,7 @@ class ECPay_INVOICE_NOTIFY
         }
 
         // *下述情況通知手機號碼不可為空值(發送方式為S-簡訊)
-        if ($arParameters['Notify'] == EcpayNotifyType::Sms && strlen($arParameters['Phone']) == 0) {
+        if ($arParameters['Notify'] == EzpayNotifyType::Sms && strlen($arParameters['Phone']) == 0) {
             array_push($arErrors, "46:Phone is required.");
         }
 
@@ -2846,7 +2846,7 @@ class ECPay_INVOICE_NOTIFY
         if (strlen($arParameters['Phone']) == 0 && strlen($arParameters['NotifyMail']) == 0) {
             array_push($arErrors, "45-46:NotifyMail or Phone is required.");
         } else {
-            if ($arParameters['Notify'] == EcpayNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['Phone']) == 0)) {
+            if ($arParameters['Notify'] == EzpayNotifyType::All && (strlen($arParameters['NotifyMail']) == 0 || strlen($arParameters['Phone']) == 0)) {
                 array_push($arErrors, "45-46:NotifyMail and Phone is required.");
             }
         }
@@ -2854,19 +2854,19 @@ class ECPay_INVOICE_NOTIFY
         // 47. 發送方式 Notify
 
         // *固定給定下述預設值
-        if (($arParameters['Notify'] != EcpayNotifyType::Sms) && ($arParameters['Notify'] != EcpayNotifyType::Email) && ($arParameters['Notify'] != EcpayNotifyType::All)) {
+        if (($arParameters['Notify'] != EzpayNotifyType::Sms) && ($arParameters['Notify'] != EzpayNotifyType::Email) && ($arParameters['Notify'] != EzpayNotifyType::All)) {
             array_push($arErrors, "47:Notify is required.");
         }
 
         // 48.發送內容類型 InvoiceTag
         // *固定給定下述預設值
-        if (($arParameters['InvoiceTag'] != EcpayInvoiceTagType::Invoice) && ($arParameters['InvoiceTag'] != EcpayInvoiceTagType::Invoice_Void) && ($arParameters['InvoiceTag'] != EcpayInvoiceTagType::Allowance) && ($arParameters['InvoiceTag'] != EcpayInvoiceTagType::Allowance_Void) && ($arParameters['InvoiceTag'] != EcpayInvoiceTagType::Invoice_Winning)) {
+        if (($arParameters['InvoiceTag'] != EzpayInvoiceTagType::Invoice) && ($arParameters['InvoiceTag'] != EzpayInvoiceTagType::Invoice_Void) && ($arParameters['InvoiceTag'] != EzpayInvoiceTagType::Allowance) && ($arParameters['InvoiceTag'] != EzpayInvoiceTagType::Allowance_Void) && ($arParameters['InvoiceTag'] != EzpayInvoiceTagType::Invoice_Winning)) {
             array_push($arErrors, "48:InvoiceTag is required.");
         }
 
         // 49.發送對象 Notified
         // *固定給定下述預設值
-        if (($arParameters['Notified'] != EcpayNotifiedType::Customer) && ($arParameters['Notified'] != EcpayNotifiedType::vendor) && ($arParameters['Notified'] != EcpayNotifiedType::All)) {
+        if (($arParameters['Notified'] != EzpayNotifiedType::Customer) && ($arParameters['Notified'] != EzpayNotifiedType::vendor) && ($arParameters['Notified'] != EzpayNotifiedType::All)) {
             array_push($arErrors, "49:Notified is required.");
         }
 
@@ -2943,7 +2943,7 @@ class ECPay_INVOICE_TRIGGER
 
         // 34.交易類別 PayType
         // *2016-10-4 修改為僅允許 2
-        if ($arParameters['PayType'] != EcpayPayTypeCategory::Ecpay) {
+        if ($arParameters['PayType'] != EzpayPayTypeCategory::Ezpay) {
             array_push($arErrors, "34:Invalid PayType.");
         }
 

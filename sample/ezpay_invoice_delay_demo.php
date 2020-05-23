@@ -8,7 +8,7 @@ try {
 
     // 1.載入SDK
     include_once($basedir . '/sdk/Ezpay_Invoice.php');
-    $ecpay_invoice = new EcpayInvoice;
+    $ecpay_invoice = new EzpayInvoice;
 
     // 2.寫入基本介接參數
     $ecpay_invoice->Invoice_Method = 'INVOICE_DELAY';

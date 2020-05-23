@@ -8,7 +8,7 @@ try
 	$sMsg = '' ;
 // 1.載入SDK程式
 	include_once($basedir . '/sdk/Ezpay_Invoice.php');
-	$ecpay_invoice = new EcpayInvoice ;
+	$ecpay_invoice = new EzpayInvoice ;
 // 2.寫入基本介接參數
 	$ecpay_invoice->Invoice_Method 	= 'INVOICE_TRIGGER';
 	$ecpay_invoice->Invoice_Url 	= 'https://einvoice-stage.ecpay.com.tw/Invoice/TriggerIssue' ;
