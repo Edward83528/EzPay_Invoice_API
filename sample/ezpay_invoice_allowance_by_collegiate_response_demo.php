@@ -13,7 +13,7 @@ try {
     $_SERVER['DOCUMENT_ROOT'];
     $basedir = $_SERVER['DOCUMENT_ROOT'];
     $sMsg = '';
-    include_once($basedir . '/sdk/Ecpay_Invoice.php');
+    include_once($basedir . '/sdk/Ezpay_Invoice.php');
     $ecpayInvoice = new EcpayInvoice;
 
     $merchantInfo = [

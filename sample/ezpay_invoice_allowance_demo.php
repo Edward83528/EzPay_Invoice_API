@@ -7,7 +7,7 @@ try {
     $sMsg = '';
 
     // 1.載入SDK
-    include_once($basedir . '/sdk/Ecpay_Invoice.php');
+    include_once($basedir . '/sdk/Ezpay_Invoice.php');
     $ecpay_invoice = new EcpayInvoice;
 
     // 2.寫入基本介接參數

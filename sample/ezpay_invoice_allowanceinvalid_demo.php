@@ -8,7 +8,7 @@ try
 	$sMsg = '';
 	$sMsg = '' ;
 // 1.載入SDK程式
-	include_once($basedir . '/sdk/Ecpay_Invoice.php');
+	include_once($basedir . '/sdk/Ezpay_Invoice.php');
 	$ecpay_invoice = new EcpayInvoice ;
 	
 // 2.寫入基本介接參數
