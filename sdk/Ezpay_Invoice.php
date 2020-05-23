@@ -207,8 +207,8 @@ abstract class EzpayNotifiedType
     const All = 'A';
 }
 
-if (!class_exists('ECPay_EncryptType')) {
-    abstract class ECPay_EncryptType
+if (!class_exists('EZPay_EncryptType')) {
+    abstract class EZPay_EncryptType
     {
         // MD5(預設)
         const ENC_MD5 = 0;
@@ -283,7 +283,7 @@ class EzpayInvoice
     function Check_Out()
     {
         $arParameters = array_merge(array('MerchantID' => $this->MerchantID), array('TimeStamp' => $this->TimeStamp), $this->Send);
-        return ECPay_Invoice_Send::CheckOut($arParameters, $this->HashKey, $this->HashIV, $this->Invoice_Method, $this->Invoice_Url);
+        return EZPay_Invoice_Send::CheckOut($arParameters, $this->HashKey, $this->HashIV, $this->Invoice_Method, $this->Invoice_Url);
     }
 
     /**
@@ -303,7 +303,7 @@ class EzpayInvoice
 /**
  *  送出資訊
  */
-class ECPay_Invoice_Send
+class EZPay_Invoice_Send
 {
     // 發票物件
     public static $InvoiceObj;
@@ -318,7 +318,7 @@ class ECPay_Invoice_Send
         // 發送資訊處理
         $arParameters = self::process_send($arParameters, $HashKey, $HashIV, $Invoice_Method, $ServiceURL);
 
-        $szResult = ECPay_IO::ServerPost($arParameters, $ServiceURL);
+        $szResult = EZPay_IO::ServerPost($arParameters, $ServiceURL);
 
         // 回傳資訊處理
         $arParameters_Return = self::process_return($szResult, $HashKey, $HashIV, $Invoice_Method);
@@ -331,26 +331,26 @@ class ECPay_Invoice_Send
     {
 
         //宣告物件
-        $InvoiceMethod = 'ECPay_' . $Invoice_Method;
+        $InvoiceMethod = 'EZPay_' . $Invoice_Method;
         self::$InvoiceObj = new $InvoiceMethod;
 
         // 1寫入參數
         $arParameters = self::$InvoiceObj->insert_string($arParameters);
 
         // 2檢查共用參數
-        ECPay_Invoice_Send::check_string($arParameters['MerchantID'], $HashKey, $HashIV, $Invoice_Method, $ServiceURL);
+        EZPay_Invoice_Send::check_string($arParameters['MerchantID'], $HashKey, $HashIV, $Invoice_Method, $ServiceURL);
 
         // 3檢查各別參數
         $arParameters = self::$InvoiceObj->check_extend_string($arParameters);
 
         // 4處理需要轉換為urlencode的參數
-        $arParameters = ECPay_Invoice_Send::urlencode_process($arParameters, self::$InvoiceObj->urlencode_field);
+        $arParameters = EZPay_Invoice_Send::urlencode_process($arParameters, self::$InvoiceObj->urlencode_field);
 
         // 5欄位例外處理方式(送壓碼前)
         $arException = self::$InvoiceObj->check_exception($arParameters);
 
         // 6產生壓碼
-        $arParameters['CheckMacValue'] = ECPay_Invoice_Send::generate_checkmacvalue($arException, self::$InvoiceObj->none_verification, $HashKey, $HashIV);
+        $arParameters['CheckMacValue'] = EZPay_Invoice_Send::generate_checkmacvalue($arException, self::$InvoiceObj->none_verification, $HashKey, $HashIV);
 
         return $arParameters;
     }
@@ -362,18 +362,18 @@ class ECPay_Invoice_Send
     {
 
         //宣告物件
-        $InvoiceMethod = 'ECPay_' . $Invoice_Method;
+        $InvoiceMethod = 'EZPay_' . $Invoice_Method;
         self::$InvoiceObj_Return = new $InvoiceMethod;
 
         // 7字串轉陣列
-        $arParameters = ECPay_Invoice_Send::string_to_array($sParameters);
+        $arParameters = EZPay_Invoice_Send::string_to_array($sParameters);
 
         // 8欄位例外處理方式(送壓碼前)
         $arException = self::$InvoiceObj_Return->check_exception($arParameters);
 
         // 9產生壓碼(壓碼檢查)
         if (isset($arParameters['CheckMacValue'])) {
-            $CheckMacValue = ECPay_Invoice_Send::generate_checkmacvalue($arException, self::$InvoiceObj_Return->none_verification, $HashKey, $HashIV);
+            $CheckMacValue = EZPay_Invoice_Send::generate_checkmacvalue($arException, self::$InvoiceObj_Return->none_verification, $HashKey, $HashIV);
 
             if ($CheckMacValue != $arParameters['CheckMacValue']) {
                 throw new Exception('注意：壓碼錯誤');
@@ -381,7 +381,7 @@ class ECPay_Invoice_Send
         }
 
         // 10處理需要urldecode的參數
-        $arParameters = ECPay_Invoice_Send::urldecode_process($arParameters, self::$InvoiceObj_Return->urlencode_field);
+        $arParameters = EZPay_Invoice_Send::urldecode_process($arParameters, self::$InvoiceObj_Return->urlencode_field);
 
         return $arParameters;
     }
@@ -435,7 +435,7 @@ class ECPay_Invoice_Send
 
             if (isset($urlencode_field[$key])) {
                 $arParameters[$key] = urlencode($value);
-                $arParameters[$key] = ECPay_Invoice_CheckMacValue::Replace_Symbol($arParameters[$key]);
+                $arParameters[$key] = EZPay_Invoice_CheckMacValue::Replace_Symbol($arParameters[$key]);
             }
         }
 
@@ -457,7 +457,7 @@ class ECPay_Invoice_Send
             }
         }
 
-        $sCheck_MacValue = ECPay_Invoice_CheckMacValue::generate($arParameters, $HashKey, $HashIV, ECPay_EncryptType::ENC_MD5);
+        $sCheck_MacValue = EZPay_Invoice_CheckMacValue::generate($arParameters, $HashKey, $HashIV, EZPay_EncryptType::ENC_MD5);
 
         return $sCheck_MacValue;
     }
@@ -488,7 +488,7 @@ class ECPay_Invoice_Send
     {
         foreach ($arParameters as $key => $value) {
             if (isset($urlencode_field[$key])) {
-                $arParameters[$key] = ECPay_Invoice_CheckMacValue::Replace_Symbol_Decode($arParameters[$key]);
+                $arParameters[$key] = EZPay_Invoice_CheckMacValue::Replace_Symbol_Decode($arParameters[$key]);
                 $arParameters[$key] = urldecode($value);
             }
         }
@@ -512,13 +512,13 @@ class ecpayResponse
      */
     static function response($merchantInfo = [], $parameters = [])
     {
-        $invoiceMethod = 'ECPay_' . $merchantInfo['method'];
+        $invoiceMethod = 'EZPay_' . $merchantInfo['method'];
         self::$objReturn = new $invoiceMethod;
 
         // 壓碼檢查
         $parametersTmp = $parameters;
         unset($parametersTmp['CheckMacValue']);
-        $checkMacValue = ECPay_Invoice_CheckMacValue::generate($parametersTmp, $merchantInfo['hashKey'], $merchantInfo['hashIv']);
+        $checkMacValue = EZPay_Invoice_CheckMacValue::generate($parametersTmp, $merchantInfo['hashKey'], $merchantInfo['hashIv']);
 
         if ($checkMacValue != $parameters['CheckMacValue']) {
             throw new Exception('注意：壓碼錯誤');
@@ -531,7 +531,7 @@ class ecpayResponse
 /**
  *  A一般開立
  */
-class ECPay_INVOICE
+class EZPay_INVOICE
 {
     // 所需參數
     public $parameters = array(
@@ -1065,7 +1065,7 @@ class ECPay_INVOICE
 /**
  *  B延遲開立
  */
-class ECPay_INVOICE_DELAY
+class EZPay_INVOICE_DELAY
 {
     // 所需參數
     public $parameters = array(
@@ -1605,7 +1605,7 @@ class ECPay_INVOICE_DELAY
 /**
  *  C1開立折讓
  */
-class ECPay_ALLOWANCE
+class EZPay_ALLOWANCE
 {
     // 所需參數
     public $parameters = array(
@@ -1906,7 +1906,7 @@ class ECPay_ALLOWANCE
 /**
  *  C2線上開立折讓(通知開立)
  */
-class ECPay_ALLOWANCE_BY_COLLEGIATE
+class EZPay_ALLOWANCE_BY_COLLEGIATE
 {
     // 所需參數
     public $parameters = array(
@@ -2213,7 +2213,7 @@ class ECPay_ALLOWANCE_BY_COLLEGIATE
 /**
  *  D發票作廢
  */
-class ECPay_INVOICE_VOID
+class EZPay_INVOICE_VOID
 {
     // 所需參數
     public $parameters = array(
@@ -2296,7 +2296,7 @@ class ECPay_INVOICE_VOID
 /**
  *  E折讓作廢
  */
-class ECPay_ALLOWANCE_VOID
+class EZPay_ALLOWANCE_VOID
 {
     // 所需參數
     public $parameters = array(
@@ -2393,7 +2393,7 @@ class ECPay_ALLOWANCE_VOID
 /**
  *  F查詢發票
  */
-class ECPay_INVOICE_SEARCH
+class EZPay_INVOICE_SEARCH
 {
     // 所需參數
     public $parameters = array(
@@ -2484,7 +2484,7 @@ class ECPay_INVOICE_SEARCH
 /**
  *  G查詢作廢發票
  */
-class ECPay_INVOICE_VOID_SEARCH
+class EZPay_INVOICE_VOID_SEARCH
 {
     // 所需參數
     public $parameters = array(
@@ -2558,7 +2558,7 @@ class ECPay_INVOICE_VOID_SEARCH
 /**
  *  H查詢折讓明細
  */
-class ECPay_ALLOWANCE_SEARCH
+class EZPay_ALLOWANCE_SEARCH
 {
     // 所需參數
     public $parameters = array(
@@ -2648,7 +2648,7 @@ class ECPay_ALLOWANCE_SEARCH
 /**
  *  I查詢折讓作廢明細
  */
-class ECPay_ALLOWANCE_VOID_SEARCH
+class EZPay_ALLOWANCE_VOID_SEARCH
 {
     // 所需參數
     public $parameters = array(
@@ -2732,7 +2732,7 @@ class ECPay_ALLOWANCE_VOID_SEARCH
 /**
  *  J發送通知
  */
-class ECPay_INVOICE_NOTIFY
+class EZPay_INVOICE_NOTIFY
 {
     // 所需參數
     public $parameters = array(
@@ -2889,7 +2889,7 @@ class ECPay_INVOICE_NOTIFY
 /**
  *  K付款完成觸發或延遲開立發票
  */
-class ECPay_INVOICE_TRIGGER
+class EZPay_INVOICE_TRIGGER
 {
     // 所需參數
     public $parameters = array(
@@ -2967,7 +2967,7 @@ class ECPay_INVOICE_TRIGGER
 /**
  *  L手機條碼驗證
  */
-class ECPay_CHECK_MOBILE_BARCODE
+class EZPay_CHECK_MOBILE_BARCODE
 {
     // 所需參數
     public $parameters = array(
@@ -3036,7 +3036,7 @@ class ECPay_CHECK_MOBILE_BARCODE
 /**
  *  M愛心碼驗證
  */
-class ECPay_CHECK_LOVE_CODE
+class EZPay_CHECK_LOVE_CODE
 {
     // 所需參數
     public $parameters = array(
@@ -3098,12 +3098,12 @@ class ECPay_CHECK_LOVE_CODE
     }
 }
 
-if (!class_exists('ECPay_Invoice_CheckMacValue')) {
+if (!class_exists('EZPay_Invoice_CheckMacValue')) {
 
     /**
      *  檢查碼
      */
-    class ECPay_Invoice_CheckMacValue
+    class EZPay_Invoice_CheckMacValue
     {
         /**
          * 產生檢查碼
@@ -3116,7 +3116,7 @@ if (!class_exists('ECPay_Invoice_CheckMacValue')) {
             if (isset($arParameters)) {
 
                 unset($arParameters['CheckMacValue']);
-                uksort($arParameters, array('ECPay_Invoice_CheckMacValue', 'merchantSort'));
+                uksort($arParameters, array('EZPay_Invoice_CheckMacValue', 'merchantSort'));
 
                 // 組合字串
                 $sMacValue = 'HashKey=' . $HashKey;
@@ -3133,15 +3133,15 @@ if (!class_exists('ECPay_Invoice_CheckMacValue')) {
                 $sMacValue = strtolower($sMacValue);
 
                 // 取代為與 dotNet 相符的字元
-                $sMacValue = ECPay_Invoice_CheckMacValue::Replace_Symbol($sMacValue);
+                $sMacValue = EZPay_Invoice_CheckMacValue::Replace_Symbol($sMacValue);
 
                 // 編碼
                 switch ($encType) {
-                    case ECPay_EncryptType::ENC_SHA256:
+                    case EZPay_EncryptType::ENC_SHA256:
                         $sMacValue = hash('sha256', $sMacValue);    // SHA256 編碼
                         break;
 
-                    case ECPay_EncryptType::ENC_MD5:
+                    case EZPay_EncryptType::ENC_MD5:
                     default:
 
                         $sMacValue = md5($sMacValue);    // MD5 編碼
@@ -3210,9 +3210,9 @@ if (!class_exists('ECPay_Invoice_CheckMacValue')) {
     }
 }
 
-if (!class_exists('ECPay_IO')) {
+if (!class_exists('EZPay_IO')) {
 
-    class ECPay_IO
+    class EZPay_IO
     {
         static function ServerPost($parameters, $ServiceURL)
         {
