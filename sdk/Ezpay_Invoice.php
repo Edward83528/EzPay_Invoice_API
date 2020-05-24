@@ -3244,6 +3244,16 @@ if (!class_exists('EZPay_IO')) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, False); // 跳過host驗證
             curl_setopt($ch, CURLOPT_POST, TRUE);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $sSend_Info);
+            //
+            //$response = $this->httpClient->request('post', $apiUri, [
+                //'form_params' => [
+                    //'MerchantID_' => $this->instance->merchantID,
+                   // 'PostData_' => $this->postDataEncrypt($postData),
+                //],
+            //]);
+
+
+            //
             $rs = curl_exec($ch);
 
             if (FALSE === $rs) {

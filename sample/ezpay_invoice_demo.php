@@ -7,52 +7,42 @@ try {
     echo $basedir;
     $sMsg = '';
 // 1.載入SDK程式
-    include_once($basedir . '/sdk/Ezpay_Invoice.php');
-    $ecpay_invoice = new EzpayInvoice;
+    include_once($basedir . '/sdk/EzpayApi.php');
+    $account = (require '../config/ezpay-invoice.php')['testing'];
+    $invoice = new EzpayInvoice2($account, $isProduction = false);
 
-// 2.寫入基本介接參數
-    $ecpay_invoice->Invoice_Method = 'INVOICE';
-    $ecpay_invoice->Invoice_Url = 'https://einvoice-stage.ecpay.com.tw/Invoice/Issue';
-    $ecpay_invoice->MerchantID = '2000132';
-    $ecpay_invoice->HashKey = 'ejCk326UnaZWKisg';
-    $ecpay_invoice->HashIV = 'q9jcZX8Ib9LM8wYk';
+    $invoice->create([
+        'Status' => '1', // 1=立即開立，0=待開立，3=延遲開立
+        'CreateStatusTime' => null, // Status = 3 時設置
+        'MerchantOrderNo' => time(),
+        'BuyerName' => '停看聽',
+        'BuyerUBN' => '54352706',
+        'BuyerAddress' => '台北市南港區南港路二段 97 號 8 樓',
+        'BuyerEmail' => '54352706@pay2go.com',
+        'Category' => 'B2B', // 二聯 B2C，三聯 B2B
+        'TaxType' => '1',
+        'TaxRate' => '5',
+        'Amt' => '490',
+        'TaxAmt' => '10',
+        'TotalAmt' => '500',
+        'PrintFlag' => 'Y',
+        'ItemName' => '商品一|商品二', // 多項商品時，以「|」分開
+        'ItemCount' => '1|2', // 多項商品時，以「|」分開
+        'ItemUnit' => '個|個', // 多項商品時，以「|」分開
+        'ItemPrice' => '300|100', // 多項商品時，以「|」分開
+        'ItemAmt' => '300|200', // 多項商品時，以「|」分開
+        'Comment' => '備註',
+    ]);
 
-// 3.寫入發票相關資訊
-    $aItems = array();
-    // 商品資訊
-    array_push($ecpay_invoice->Send['Items'], array('ItemName' => '商品名稱一', 'ItemCount' => 1, 'ItemWord' => '批', 'ItemPrice' => 0, 'ItemTaxType' => 1, 'ItemAmount' => 0, 'ItemRemark' => '商品備註一'));
-    array_push($ecpay_invoice->Send['Items'], array('ItemName' => '商品名稱二', 'ItemCount' => 1, 'ItemWord' => '批', 'ItemPrice' => 150.8, 'ItemTaxType' => 1, 'ItemAmount' => 150.8, 'ItemRemark' => '商品備註二'));
-    array_push($ecpay_invoice->Send['Items'], array('ItemName' => '商品名稱二', 'ItemCount' => 1, 'ItemWord' => '批', 'ItemPrice' => 250, 'ItemTaxType' => 1, 'ItemAmount' => 250, 'ItemRemark' => '商品備註三'));
+    $invoice->invalid([
+        //'InvoiceNumber' => $invoice->getResult('InvoiceNumber'), // 發票號碼
+        'InvoiceNumber' => 'GA00000016', // 發票號碼
+        //'RandomNum' => $invoice->getResult('RandomNum'), // (選擇性) 若需檢查 checkcode，需帶入
+        'InvalidReason' => '訂單取消', // 作廢原因
+    ]);
 
-    $RelateNumber = 'ECPAY' . date('YmdHis') . rand(1000000000, 2147483647); // 產生測試用自訂訂單編號
-    $ecpay_invoice->Send['RelateNumber'] = $RelateNumber;
-    $ecpay_invoice->Send['CustomerID'] = '';
-    $ecpay_invoice->Send['CustomerIdentifier'] = '';
-    $ecpay_invoice->Send['CustomerName'] = '';
-    $ecpay_invoice->Send['CustomerAddr'] = '';
-    $ecpay_invoice->Send['CustomerPhone'] = '';
-    $ecpay_invoice->Send['CustomerEmail'] = 'test@localhost.com';
-    $ecpay_invoice->Send['ClearanceMark'] = '';
-    $ecpay_invoice->Send['Print'] = '0';
-    $ecpay_invoice->Send['Donation'] = '0';
-    $ecpay_invoice->Send['LoveCode'] = '';
-    $ecpay_invoice->Send['CarruerType'] = '';
-    $ecpay_invoice->Send['CarruerNum'] = '';
-    $ecpay_invoice->Send['TaxType'] = 1;
-    $ecpay_invoice->Send['SalesAmount'] = 401;
-    $ecpay_invoice->Send['InvoiceRemark'] = 'v1.0.190822';
-    $ecpay_invoice->Send['InvType'] = '07';
-    $ecpay_invoice->Send['vat'] = '';
-// 4.送出
-    $aReturn_Info = $ecpay_invoice->Check_Out();
-
-// 5.返回
-    foreach ($aReturn_Info as $key => $value) {
-        $sMsg .= $key . ' => ' . $value . '<br>';
-    }
 } catch (Exception $e) {
     // 例外錯誤處理。
     $sMsg = $e->getMessage();
 }
-echo 'RelateNumber=>' . $RelateNumber . '<br>' . $sMsg;
 ?>
